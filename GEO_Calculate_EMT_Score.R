@@ -110,86 +110,22 @@ KSScore = function(expMat,gseID,outDirectory){
 
 }
 
-emtPredExp = function(geneExpMat,gseID,fileLoc){
-
-  #Predictor + Normalizer gene expression to run MLR model for EMT prediction 
-  geneList =  scan(file = "F:/IISC/EMT/EMT_Score/EMT_Score_MLR/Code/R_Code/genes_for_EMT_score.txt",sep = '\n',what = "vector")
-  idx = match(geneList,as.character(geneExpMat[,1]))
-  geneExpSubMat = geneExpMat[na.omit(idx), ]
-  notFound = setdiff(geneList,as.character(geneExpMat[,1]))
-  print(paste("Gene not found in the dataset", notFound))
-  sampleNum = ncol(geneExpSubMat)
-  outFileName1 = paste(gseID,"_EMT_gene_explevels.txt",sep="")
-  writeFileName = paste(fileLoc,gseID,outFileName1,sep = '/')
-  write.table(geneExpSubMat[,-2],file =writeFileName ,sep = '\t',quote = F,row.names = F)
-  write(writeFileName,file = "F:/matlab_input_temp.txt",append=T)
-  return(geneExpSubMat)
-}
-
-
-mlrEMTPred = function(expSet,gse_id,gpl_id,in_dir,out_dir){
-  emtPredExp(expSet,gse_id,in_dir)
-  cat("EMT predictors expression file generated\n")
-  cat("running MLR EMT predictions (matlab code)...\n")
-  mlrOutfile  = paste(gse_id,"_emt_score_MLR.txt",sep  = "")
-  writeOut = paste(out_dir,mlrOutfile,sep = '/')
-  write(writeOut,file = "F:/matlab_input_temp.txt",append = T)
-  if(gpl_id == "GPL570"){
-  	print("MLR prediction for GPL570 data ")
-  	run_matlab_script("F:/IISC/EMT/EMT_Score/EMT_Score_MLR/Code/Matlab_Code/EMT_GPL570_automated.m")	
-  } else{
-  	run_matlab_script("F:/IISC/EMT/EMT_Score/EMT_Score_MLR/Code/Matlab_Code/EMT_nonGPL570_automated.m")	
-  }
-  mlrOut = read.table(file  = writeOut,header = T,stringsAsFactors = F)
-  file.remove("F:/matlab_input_temp.txt")
-  return(mlrOut[,"ScoreEMT3_norm"])
-
-}
-
-all_scoreCor = function(scoreList,gse_data_id,out_path){
-  
-  count = 0
-  corVal = NULL
-  for(i in 1:2){
-    for(j in (i+1):3){
-      count = count + 1
-      corEst = cor.test(scoreList[[i]],scoreList[[j]])
-      corVal = c(corVal,c(corEst$estimate,corEst$p.value))
-    }
-  }
-  
-  names(corVal) = c("76GS-KS_Cor","76GS-KS_Pval","76GS-Jason_Cor","76GS-Jason_Pval","KS-Jason_Cor","KS-Jason_Pval" )
-
-  outFileName =paste("./","76GS_KS_EMT_Cor_all.txt",sep = '/')
-  if(!file.exists(outFileName)) file.create(outFileName)
-  write(c(gse_data_id,corVal), file = outFileName,sep = '\t',ncolumns  = 7,append = T)
-
-  return(corVal)
-}
 
 
 getEMTScore = function(expVal,gseNum,gplID){
 
   score1 = EMT76GS(expVal,gseNum)
   score2 = KSScore(expVal,gseNum)
-  #score3 = mlrEMTPred(expVal,gseNum,gplID,dirIn,dirOut)
-  #score_list = list(score1, score2, score3)
-  #cor_val = all_scoreCor(score_list,gseNum)
   
-  return(0)
+  
+  return(list(score1,score2))
 
 }
 
-remInputFiles=function(gsePath,inPath){
-  curDirectory = paste(inPath,gsePath,sep  = "/")
-  allFiles = list.files(curDirectory)
-  sapply(allFiles,file.remove)
-}
 
 getEMTCor  = function(gse){
   expMat=geneExpGEOdata(gse)
   setwd("../")
   emtScore=getEMTScore(expMat[[1]],gse,expMat[[2]])
-  #remInputFiles(gse,inputPath)
   return(emtScore)  
 }
