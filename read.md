@@ -13,4 +13,4 @@
 
 
 
-Please consider citing *Chakraborty et al.,2020,Front.Bioeng.Biotech.*  article if you find this code useful in your research. 
+Please cite *Chakraborty et al.,2020,Front.Bioeng.Biotech.*  article if you find this code useful in your research. 
