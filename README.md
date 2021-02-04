@@ -1,5 +1,5 @@
 # EMT_score_calculation
-#### This code downloads microarray GEO data for a given GSE ID, preprocesses it to generate gene wise expression and calculates EMT score using method mentioned in *Byers et al.,2013*, *Tan et al., 2014* and *George et al., 2017*
+#### This code downloads microarray GEO data for a given GSE ID, preprocesses it to generate gene wise expression and calculates EMT score using methods mentioned in *Byers et al.,2013*, *Tan et al., 2014* and *George et al., 2017*
 
 To run the code successfully you should have all the required R packages installed. 
 
